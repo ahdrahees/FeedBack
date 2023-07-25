@@ -1,0 +1,35 @@
+type QueryOwner = 
+ record {
+   balance: int;
+   brand: text;
+   id: nat;
+   lastPost: int;
+   post: vec BrandHash;
+ };
+type QueryBrand = 
+ record {
+   brand: text;
+   brandBalance: int;
+   brandId: text;
+   created: int;
+ };
+type PostResult = 
+ variant {
+   err: PostError;
+   ok;
+ };
+type PostError = 
+ variant {
+   AnonNotAllowed;
+   InvalidBrand;
+   OwnerNotFound;
+   TimeRemaining: int;
+   UserNotFound;
+ };
+type BrandHash = nat32;
+service : {
+  allBrands: () -> (vec QueryBrand) query;
+  postBrand: (text) -> (PostResult);
+  register: () -> (QueryOwner);
+  tokenTreasury: () -> (int) query;
+}
