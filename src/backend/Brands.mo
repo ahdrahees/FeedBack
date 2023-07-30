@@ -3,126 +3,134 @@ import Time "mo:base/Time";
 import List "mo:base/List";
 import Error "mo:base/Error";
 
-import Types "Types";
+// mops - map;
+import Map "mo:map/Map";
+
+import T "Types";
 import Constants "Constants";
-import { validateBrand; hashBrand ;ownerToQueryOwner} "Utils";
+import U "Utils";
+
 
 module {
-    type State = Types.State;
-    type Owners = Types.Owners;
-    type User = Types.User;
-    type Owner = Types.Owner;
+    // Types 
+    type List<T> = List.List<T>;
+    type BrandMap = T.BrandMap;
+    type Brand = T.Brand;
+    type RegisterResult = T.RegisterResult;
+    type PostMap = T.PostMap;
+    type Feedback = T.Feedback;
+    type FeedbackMap = T.FeedbackMap;
+    type FeedbackId = T.FeedbackId;
+    type PostId = T.PostId;
+    type QueryPost = T.QueryPost;
+    type QueryPostResult = T.QueryPostResult;
+    type QueryBrand = T.QueryBrand;
+    type QueryBrandResult = T.QueryBrandResult;
+    type PostAndFeedbacks = T.PostAndFeedbacks;
 
-    type Brand = Types.Brand;
-    type Reward = Types.Reward;
-    type BrandHash = Types.BrandHash;
+    // Variables
+    let {phash; nhash} = Map;
+    
+    
+    // 10 token for a feedback
+    public  func getPost(postMap : PostMap, postId : PostId) : QueryPostResult {
+        switch( Map.get(postMap, nhash, postId)) {
+            case (null) { #err(#PostNotFound)};
+            case (?post) {    
+                #ok(U.postToQueryPost(post))
+            }
+        }
+    };
 
-    type PostResult = Types.PostResult;
-    type QueryBrand = Types.QueryBrand;
-    type QueryOwner = Types.QueryOwner;
+    public type ddBrand = {
+        id : Nat;
+        owner : Principal;
+        brand : Text;
+        var balance : Nat;
+        var lastPost : Int;
+        var postList : List.List<PostId>;
+    };
+    
 
-    public func register(owners : Owners, principal : Principal) : QueryOwner {
-        switch (owners.get(principal)) {
 
-            // If owner doesn't exist, create a new one
-            case (null) {
-                let newOwner : Owner = {
-                    id = owners.size() + 1;
-                    owner = principal;
-                    balance = 0;
-                    lastPost = 0;
-                    brand = "";
-                    post = List.nil<BrandHash>();
+    public func queryBrand(brandMap : BrandMap, caller : Principal) : QueryBrandResult {
+        switch ( Map.get(brandMap, phash, caller)) {
+            case (null)  { #err(#BrandNotFound)};
+            case (?brand) {
+                if (not (caller == brand.owner)) return #err( #NotABrandOwner);
+                let _queryBrand: QueryBrand  = {
+                    id = brand.id;
+                    owner = brand.owner;
+                    name = brand.name;
+                    balance = brand.balance;
+                    lastPost = brand.lastPost;
+                    totalPosts = List.size<PostId>(brand.postList);
                 };
+                #ok(_queryBrand);
+            }
+        }
+    };
+    
+// brand is not a post owner (postId, principal)
+    public func getAPostAndFeedbacks(brandMap : BrandMap, postMap: PostMap, feedbackMap : FeedbackMap, caller : Principal, postId : PostId) : T.APostAndFeedbacksResult {
+        switch ( Map.get(brandMap, phash, caller)) {
+            case (null)  { #err(#BrandNotFound)};
+            case (?brand) {
+                if (not (caller == brand.owner)) return #err( #NotABrandOwner);
+                switch( Map.get(postMap, nhash, postId)) {
+                    case (null) { #err(#PostNotFound)};
+                    case (?post) {
+                        if( not (brand.owner == post.owner)){ return #err(#PostBelongsTo(post.postId, post.brandName))};
 
-                owners.put(principal, newOwner);
+                        #ok(U.toPostAndFeedbacks(post, feedbackMap));
+                    }
+                }
+            }
+        }
+    };
 
-                ownerToQueryOwner(newOwner);
+    public func getAllPostAndFeedbacks(brandMap : BrandMap, postMap: PostMap, feedbackMap : FeedbackMap, caller : Principal) : T.AllPostAndFeedbacksResult {
+        switch(Map.get(brandMap, phash, caller)) {
+            case (null)  { #err(#BrandNotFound)};
+            case (?brand) { 
+                if (not (caller == brand.owner)) return #err( #NotABrandOwner);
+                #ok(U.toPostAndFeedbacksArray(brand.postList,postMap, feedbackMap))
             };
-
-            // If owner exists, return it
-            case (?postowner) { ownerToQueryOwner(postowner) };
         };
     };
 
-    public func postBrand(state : State, owner : Principal, brand : Text) : PostResult {
-        if (not validateBrand(brand)) return #err(#InvalidBrand);
-
-        switch (state.owners.get(owner)) {
-
-            case (null) { return #err(#OwnerNotFound) };
-
-            case (?postowner) {
-                let now = Time.now();
-
-                // Check if owner has posted recently
-                if (now - postowner.lastPost < Constants.POST_INTERVAL) {
-                    return #err(#TimeRemaining(Constants.POST_INTERVAL - (now - postowner.lastPost)));
-                };
-
-                let postBrand : Brand = {
-                    created = now;
-                    owner;
-                    brand;
-                    reward = 0;
-                };
-
-                let hash = hashBrand(postBrand);
-
-                let balance = 100;
-
-                let newOwner : Owner = {
-                    id = 1;
-                    owner = owner;
-                    balance = balance;
-                    brand = brand;
-                    lastPost = now;
-                    post = List.push<BrandHash>(hash, postowner.post);
-                };
-
-                // Update state within atomic block after all checks have passed
-                state.owners.put(owner, newOwner);
-
-                state.brandStore.put(hash, postBrand);
-
-                state.brandHistory := List.push<BrandHash>(hash, state.brandHistory);
-
-                #ok();
-
-            };
-
+    public func getPostsbyBrand(brandMap : BrandMap, postMap : PostMap, caller : Principal) : T.BrandPostsResult {
+        switch ( Map.get(brandMap, phash, caller)) {
+            case (null)  { #err(#BrandNotFound)};
+            case (?brand) { 
+                #ok( U.postIdListToQueryPostArray(brand.postList, postMap))
+            }
         };
-
     };
 
-    public func allBrands(state : State) : [QueryBrand] {
-
-        let allHashes = List.take<BrandHash>(state.brandHistory, List.size(state.brandHistory));
-
-        let brands = List.mapFilter<BrandHash, QueryBrand>(
-            allHashes,
-            func(hash : BrandHash) : ?QueryBrand {
-
-                switch (state.brandStore.get(hash)) {
-                    case (null) return null;
-                    case (?brand) {
-                        switch (state.owners.get(brand.owner)) {
-                            case (null) return null;
-                            case (?User) {
-                                let brandId = "User" # Nat.toText(User.id);
-                                ?{
-                                    created = brand.created;
-                                    brandId;
-                                    brandBalance = User.balance;
-                                    brand = brand.brand;
-                                };
-                            };
-                        };
-                    };
+    public func getAllOpenPosts(brandMap : BrandMap, postMap : PostMap, closedPostList : List<PostId>, caller : Principal) : T.AllOpenPostsResult{
+        switch ( Map.get(brandMap, phash, caller)) {
+            case (null)  { #err(#BrandNotFound)};
+            case (?brand) {
+                func isOpenPost(postId : PostId) : Bool {
+                    U.isOpenPost(closedPostList, postId)
                 };
-            },
-        );
-        List.toArray(brands);
+                let openPosts : List<PostId> = List.filter(brand.postList,isOpenPost);  // gives open posts in brand postList
+                #ok(U.postIdListToQueryPostArray(openPosts, postMap))
+            };
+        };
     };
 
+    public func getAllClosedPosts(brandMap : BrandMap, postMap : PostMap, closedPostList : List<PostId>, caller : Principal) : T.AllOpenPostsResult{
+        switch ( Map.get(brandMap, phash, caller)) {
+            case (null)  { #err(#BrandNotFound)};
+            case (?brand) {
+                func isClosedPost(postId : PostId) : Bool {
+                    U.isClosedPost(closedPostList, postId)
+                };
+                let closedPosts : List<PostId> = List.filter(brand.postList, isClosedPost); // gives closed posts in brand postList
+                #ok(U.postIdListToQueryPostArray(closedPosts, postMap))
+            };
+        };
+    };
 };

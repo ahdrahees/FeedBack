@@ -24,7 +24,19 @@ npm run dev
 # or start the server and open the app in a new browser tab
 npm run dev -- --open
 ```
-
+## Use mops package
+1. Install CLI tool
+```bash
+npm i -g ic-mops
+```
+2. Initialize
+```bash
+mops init
+```
+3. Install map Motoko Packages
+```bash
+mops add map
+```
 ## Building
 
 To create a production version of your app:

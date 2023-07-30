@@ -20,5 +20,10 @@
                 "entrypoint": "build/index.html"
             }
         }
-    }
+    },
+    "defaults": {
+        "build": {
+          "packtool": "mops sources"
+        }
+      }
 }
