@@ -19,7 +19,7 @@ module {
 
     type PostResult = Types.PostResult;
     type QueryBrand = Types.QueryBrand;
-    type QueryOwner = Types.QueryOwner;
+    type QueryOwner = Types.QueryOwner ;
 
     public func register(owners : Owners, principal : Principal) : QueryOwner {
         switch (owners.get(principal)) {
@@ -53,7 +53,7 @@ module {
             case (null) { return #err(#OwnerNotFound) };
 
             case (?postowner) {
-                let now = Time.now();
+                let now =   Time.now();
 
                 // Check if owner has posted recently
                 if (now - postowner.lastPost < Constants.POST_INTERVAL) {
