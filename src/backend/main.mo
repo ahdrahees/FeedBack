@@ -1,7 +1,3 @@
-// Tokenized Brand Example
-// For demonstration purposes only.
-// Tokens are not transferable.
-
 // Base
 import Array "mo:base/Array";
 import List "mo:base/List";
