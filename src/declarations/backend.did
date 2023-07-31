@@ -1,35 +1,226 @@
-type QueryOwner = 
+type UserFeedbacksResult = 
+ variant {
+   err: Error;
+   ok: vec Feedback;
+ };
+type Registration = 
+ variant {
+   Brand: text;
+   User: text;
+ };
+type RegisterResult = 
+ variant {
+   err: RegisterError;
+   ok;
+ };
+type RegisterError = 
+ variant {
+   AlreadyRegisterd: record {
+                       principal;
+                       text;
+                     };
+   AnonymousNotAllowed;
+   BrandNotFound;
+   OwnerNotFound;
+   PostNotFound;
+   TimeRemaining: int;
+   UserNotFound;
+ };
+type QueryUserResult = 
+ variant {
+   err: Error;
+   ok: QueryUser;
+ };
+type QueryUser = 
  record {
    balance: int;
-   brand: text;
    id: nat;
-   lastPost: int;
-   post: vec BrandHash;
+   lastFeedback: int;
+   name: text;
+   "principal": principal;
+   totalFeedback: nat;
+ };
+type QueryPostResult = 
+ variant {
+   err: Error;
+   ok: QueryPost;
+ };
+type QueryPost = 
+ record {
+   brandName: text;
+   created: int;
+   filledspot: nat;
+   owner: principal;
+   postId: nat;
+   question: text;
+   rewardLeft: nat;
+   spotLeft: nat;
+   totalspot: nat;
+ };
+type QueryBrandResult = 
+ variant {
+   err: QueryBrandError;
+   ok: QueryBrand;
+ };
+type QueryBrandError = 
+ variant {
+   AnonymousNotAllowed;
+   BrandNotFound;
+   NotABrandOwner;
+   OwnerNotFound;
+   PostNotFound;
+   TimeRemaining: int;
+   UserNotFound;
  };
 type QueryBrand = 
  record {
-   brand: text;
-   brandBalance: int;
-   brandId: text;
-   created: int;
+   balance: nat;
+   id: nat;
+   lastPost: int;
+   name: text;
+   owner: principal;
+   totalPosts: nat;
  };
 type PostResult = 
  variant {
    err: PostError;
    ok;
  };
+type PostId = nat;
 type PostError = 
  variant {
-   AnonNotAllowed;
-   InvalidBrand;
+   AnonymousNotAllowed;
+   BrandNotFound;
+   LowBalance: nat;
    OwnerNotFound;
+   PostNotFound;
    TimeRemaining: int;
    UserNotFound;
  };
-type BrandHash = nat32;
+type PostAndFeedbacksError = 
+ variant {
+   AnonymousNotAllowed;
+   BrandNotFound;
+   NotABrandOwner;
+   OwnerNotFound;
+   PostBelongsTo: record {
+                    PostId;
+                    text;
+                  };
+   PostNotFound;
+   TimeRemaining: int;
+   UserNotFound;
+ };
+type PostAndFeedbacks = 
+ record {
+   feedbacks: vec Feedback;
+   post: QueryPost;
+ };
+type FeedbackResult = 
+ variant {
+   err: FeedbackError;
+   ok;
+ };
+type FeedbackId__1 = nat;
+type FeedbackId = nat;
+type FeedbackError = 
+ variant {
+   AlreadyFeedbacked;
+   AnonymousNotAllowed;
+   BrandNotFound;
+   NoSpotLeft;
+   OwnerNotFound;
+   PostNotFound;
+   TimeRemaining: int;
+   UserNotFound;
+ };
+type FeedbackAndPost = 
+ record {
+   feedback: Feedback;
+   post: QueryPost;
+ };
+type Feedback = 
+ record {
+   created: int;
+   feedback: text;
+   feedbackId: FeedbackId;
+   postId: nat;
+   userName: text;
+ };
+type Error = 
+ variant {
+   AnonymousNotAllowed;
+   BrandNotFound;
+   OwnerNotFound;
+   PostNotFound;
+   TimeRemaining: int;
+   UserNotFound;
+ };
+type BrandPostsResult = 
+ variant {
+   err: Error;
+   ok: vec QueryPost;
+ };
+type AllUnfilledPostsResult = 
+ variant {
+   err: Error;
+   ok: vec QueryPost;
+ };
+type AllPostAndFeedbacksResult = 
+ variant {
+   err: PostAndFeedbacksError;
+   ok: vec PostAndFeedbacks;
+ };
+type AllOpenPostsResult = 
+ variant {
+   err: Error;
+   ok: vec QueryPost;
+ };
+type AllFeedbackAndPostResult = 
+ variant {
+   err: Error;
+   ok: vec FeedbackAndPost;
+ };
+type AllClosedPostsResult = 
+ variant {
+   err: Error;
+   ok: vec QueryPost;
+ };
+type APostAndFeedbacksResult = 
+ variant {
+   err: PostAndFeedbacksError;
+   ok: PostAndFeedbacks;
+ };
+type AFeedbackAndPostResult = 
+ variant {
+   err:
+    variant {
+      AnonymousNotAllowed;
+      BrandNotFound;
+      FeedbackNotInYourList;
+      OwnerNotFound;
+      PostNotFound;
+      TimeRemaining: int;
+      UserNotFound;
+    };
+   ok: FeedbackAndPost;
+ };
 service : {
-  allBrands: () -> (vec QueryBrand) query;
-  postBrand: (text) -> (PostResult);
-  register: () -> (QueryOwner);
-  tokenTreasury: () -> (int) query;
+  getAFeedbackAndPost: (FeedbackId__1) -> (AFeedbackAndPostResult) query;
+  getAPostAndFeedbacks: (nat) -> (APostAndFeedbacksResult) query;
+  getAllClosedPosts: () -> (AllClosedPostsResult) query;
+  getAllFeedbackAndPost: () -> (AllFeedbackAndPostResult) query;
+  getAllOpenPosts: () -> (AllOpenPostsResult) query;
+  getAllPostAndFeedbacks: () -> (AllPostAndFeedbacksResult) query;
+  getAllUnfilledPosts: () -> (AllUnfilledPostsResult) query;
+  getFeedbacksByUser: () -> (UserFeedbacksResult) query;
+  getPost: (nat) -> (QueryPostResult) query;
+  getPostsbyBrand: () -> (BrandPostsResult) query;
+  post: (text, nat) -> (PostResult);
+  postfeedback: (nat, text) -> (FeedbackResult);
+  queryBrand: () -> (QueryBrandResult) query;
+  queryUser: () -> (QueryUserResult) query;
+  register: (Registration) -> (RegisterResult);
+  registerBrand: (text) -> (RegisterResult);
+  registerUser: (text) -> (RegisterResult);
 }
