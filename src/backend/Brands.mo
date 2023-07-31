@@ -10,6 +10,9 @@ import T "Types";
 import Constants "Constants";
 import U "Utils";
 
+    type PostResult = Types.PostResult;
+    type QueryBrand = Types.QueryBrand;
+    type QueryOwner = Types.QueryOwner ;
 
 module {
     // Types 
@@ -106,7 +109,32 @@ module {
                 #ok( U.postIdListToQueryPostArray(brand.postList, postMap))
             }
         };
-    };
+    }
+    public func postBrand(state : State, owner : Principal, brand : Text) : PostResult {
+        if (not validateBrand(brand)) return #err(#InvalidBrand);
+
+        switch (state.owners.get(owner)) {
+
+            case (null) { return #err(#OwnerNotFound) };
+
+            case (?postowner) {
+                let now =   Time.now();
+
+                // Check if owner has posted recently
+                if (now - postowner.lastPost < Constants.POST_INTERVAL) {
+                    return #err(#TimeRemaining(Constants.POST_INTERVAL - (now - postowner.lastPost)));
+                };
+
+                let postBrand : Brand = {
+                    created = now;
+                    owner;
+                    brand;
+                    reward = 0;
+                };
+
+                let hash = hashBrand(postBrand);
+
+                let balance = 100;
 
     public func getAllOpenPosts(brandMap : BrandMap, postMap : PostMap, closedPostList : List<PostId>, caller : Principal) : T.AllOpenPostsResult{
         switch ( Map.get(brandMap, phash, caller)) {
