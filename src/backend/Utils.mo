@@ -6,31 +6,23 @@ import List "mo:base/List";
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 
-
-// mops - map
 import Map "mo:map/Map";
 
 import T "Types";
 
 module {
+    
     type List<T> = List.List<T>;
 
-    type Brand = T.Brand;
     type Post = T.Post;
     type User = T.User;
     type Feedback = T.Feedback;
-    type BrandMap = T.BrandMap;
     type PostMap = T.PostMap;
-    type UserMap = T.UserMap;
     type FeedbackMap = T.FeedbackMap;
-    type RegisterResult = T.RegisterResult;
-    type PostResult = T.PostResult;
-    type FeedbackResult = T.FeedbackResult;
     
     type PostId = T.PostId;
     type FeedbackId = T.FeedbackId;
     type QueryPost = T.QueryPost;
-    type QueryUser = T.QueryUser;
     type PostAndFeedbacks = T.PostAndFeedbacks;
     type FeedbackAndPost = T.FeedbackAndPost;
 

@@ -10,10 +10,8 @@ import Principal "mo:base/Principal";
 import Error "mo:base/Error";
 import Time "mo:base/Time";
 
-
 // mops - map
 import Map "mo:map/Map";
-
 
 import T "Types";
 import Constants "Constants";
@@ -65,11 +63,10 @@ actor {
     };
 
     // brand only
-    public shared ({caller}) func post(questions : [Text], reward : Nat) : async  PostResult {
-        // Anonymous users cannot post
+    public shared ({caller}) func post(questions : [Text], reward : Nat) : async  PostResult{
+       
        if(Principal.isAnonymous(caller))  return #err(#AnonymousNotAllowed);
        _post(brandMap, caller, postMap, questions, reward)
-
     };
 
     // Anyone -- get A Post by postId
@@ -82,7 +79,6 @@ actor {
     public shared query ({caller}) func queryBrand() : async QueryBrandResult {
         if(Principal.isAnonymous(caller))  return #err(#AnonymousNotAllowed);
         Brands.queryBrand(brandMap, caller);
-
     };
     
     // user
@@ -110,16 +106,8 @@ actor {
         Feedbacks.getFeedbacksByUser(userMap, caller, feedbackMap)
     };
 
-    // getFeedbacksByUser ✅
-    // getAFeedbackAndPost user ✅
-    // getAllFeedbackAndPost user ✅
-
-    // getPostsbyBrand brand ✅
-    // getAPostAndFeedbacks brand ✅
-    // getAllPostAndFeedbacks brand ✅
-
     // brand only -- get all post of a brand
-    public shared query ({caller}) func getPostsbyBrand() : async T.BrandPostsResult{
+    public shared query ({caller}) func getPostsByBrand() : async T.BrandPostsResult{
         if(Principal.isAnonymous(caller))  return #err(#AnonymousNotAllowed);
         Brands.getPostsbyBrand(brandMap, postMap, caller)
     };
@@ -169,15 +157,12 @@ actor {
         Feedbacks.getAFeedbackAndPost(userMap, postMap, feedbackMap, caller, feedbackId)
     };
 
-
     // user
     public shared query ({caller}) func getAllFeedbackAndPost() : async T.AllFeedbackAndPostResult {
         if(Principal.isAnonymous(caller))  return #err(#AnonymousNotAllowed);
         Feedbacks.getAllFeedbackAndPost(userMap, postMap, feedbackMap, caller)
     };
 
-  
-  
     // Private functions
     private func _register(brandMap: BrandMap, _owner : Principal, brandName : Text) : RegisterResult {
         switch(Map.get(brandMap, phash,_owner)) {
@@ -223,14 +208,6 @@ actor {
                     brand.lastPost := newPost.created;
                     brand.postList := List.push(newPost.postId, brand.postList);
 
-                    // brandmap update method 2 if type is Brand2
-                    // let lastPost = newPost.created;
-                    // let updateBrand : Brand = {
-                    //     brand with
-                    //     lastPost;
-                    //     postList = List.push<PostId>(newPost.postId, brand.postList);
-                    // };
-                    // Map.set(brandMap, phash,_owner,updateBrand);
                     #ok()
 
                 }else {
@@ -256,18 +233,7 @@ actor {
                         brand.lastPost := newPost.created;
                         brand.postList := List.push(newPost.postId, brand.postList);
 
-                        // brandmap update method 2 if type is Brand2
-                        // let balance = brand.balance - amount;
-                        // let lastPost = newPost.created;
-                        // // Create new brand record
-                        // let updateBrand : Brand = {
-                        //     brand with
-                        //     balance;
-                        //     lastPost;
-                        //     postList = List.push<PostId>(newPost.postId, brand.postList);
-                        // };
-                        // Map.set(brandMap, phash, _owner, updateBrand);
-                        #ok();
+                         #ok();
                     }
                 }
              };

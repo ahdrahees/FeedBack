@@ -20,30 +20,17 @@ import U "Utils";
 
 module {
     type List<T> = List.List<T>;
-    type Brand = T.Brand;
     type Post = T.Post;
-    type User = T.User;
-    type Feedback = T.Feedback;
-    type BrandMap = T.BrandMap;
     type PostMap = T.PostMap;
     type UserMap = T.UserMap;
     type FeedbackMap = T.FeedbackMap;
-    type RegisterResult = T.RegisterResult;
-    type PostResult = T.PostResult;
-    type FeedbackResult = T.FeedbackResult;
     
     type PostId = T.PostId;
     type FeedbackId = T.FeedbackId;
-    type QueryPostResult = T.QueryPostResult;
-    type QueryBrandResult = T.QueryBrandResult;
     type QueryUser = T.QueryUser;
-
-    // type MyFeedbackByUser = T.MyFeedbackByUser ;
 
     let {phash;nhash} = Map;
 
-
-    
     public func queryUser(userMap : UserMap, principal : Principal) : T.QueryUserResult{
         switch(Map.get(userMap, phash, principal)) {
             case(null) { #err(#UserNotFound) };

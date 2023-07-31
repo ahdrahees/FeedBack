@@ -5,16 +5,28 @@ import R "mo:base/Result";
 import Principal "mo:base/Principal";
 import Error "mo:base/Error";
 import Time "mo:base/Time";
-// import Feedback "Feedback";
+
 
 module {
     public type Time = Time.Time;
+    public type Result<Ok, Err> = R.Result<Ok, Err>;
+    
     public type Map<K,V> = Map.Map<K,V>;
-    type Result<Ok, Err> = R.Result<Ok, Err>;
-    type Status = {
+    public type BrandMap = Map<Principal,Brand>;
+    public type UserMap = Map<Principal, User>;
+    public type PostMap = Map<PostId, Post>;
+    public type FeedbackMap = Map<FeedbackId,Feedback>;
+
+    public type Status = {
         #Open;
         #Closed : Time;
     };
+
+    public type Registration = {
+        #Brand : Text;
+        #User : Text;
+    };
+
     // Brand data
     public type Post = {
         postId: Nat;
@@ -23,9 +35,10 @@ module {
         brandName : Text;
         question : [Text];
         var reward : Nat;
-        var feedbackList : List.List<FeedbackId>;   // to track feedbacks belongs to this post
+        var feedbackList : List.List<FeedbackId>;   
         var status : Status;
     };
+
     public type Feedback = {
         feedbackId : FeedbackId;
         postId: Nat;
@@ -40,11 +53,9 @@ module {
         principal: Principal;
         name : Text;
         var balance : Int;
-        // lastPost : Int;
         var lastFeedback : Int;
-        var feedbackList : List.List<FeedbackId>;   // To track all feedbacks by user
-        var postList : List.List<PostId>;   // To know user already feedbacked Post
-
+        var feedbackList : List.List<FeedbackId>;   
+        var postList : List.List<PostId>;   
     };
 
     // brandOwner data
@@ -54,47 +65,15 @@ module {
         name : Text;
         var balance : Nat;
         var lastPost : Int;
-        var postList : List.List<PostId>;   // To know brand's own posts
+        var postList : List.List<PostId>; 
     };
 
-    public type Registration = {
-        #Brand : Text;
-        #User : Text;
-    };
-    // public type Brand2 = {
-    //     id : Nat;
-    //     owner : Principal;
-    //     name : Text;
-    //     balance : Nat;
-    //     lastPost : Int;
-    //     postList : List.List<PostId>;
-    // };
-    // public type Reward = Int;
+    
     public type PostId = Nat;
     public type FeedbackId = Nat;
-
-    // public type FeedbackHash = Hash.Hash;
-    // public type PostHash = Hash.Hash;
-    
-    // public type Id = Nat;
-    // public type Balance = Int;
-    // public type LastPost = Int;
-
-    // Stores 
-    public type BrandMap = Map<Principal,Brand>;
-    public type UserMap = Map<Principal, User>;
-    public type PostMap = Map<PostId, Post>;
-    public type FeedbackMap = Map<FeedbackId,Feedback>;
-
-    // public type PostMap = Map<PostHash, Post>;
-    // public type FeedbackMap = Map<FeedbackHash,Feedback>;
-
-
-    // Stores
-    // public type Treasury = Nat;
-
-
-    type Error = {
+  
+    //  Results
+    public type Error = {
         # TimeRemaining : Int;
         # AnonymousNotAllowed;
         # UserNotFound;
@@ -103,7 +82,8 @@ module {
         #PostNotFound;
     };
 
-    public type RegisterResult = Result<(), RegisterError>; // both brand register and user reigster can use this
+    public type RegisterResult = Result<(), RegisterError>; 
+
     public type RegisterError = Error or { #AlreadyRegisterd : (Principal, Text)};
 
     public type PostResult = Result<(), PostError>;
@@ -119,36 +99,27 @@ module {
 
     public type QueryUserResult = Result<QueryUser, Error>;
 
-    // public type MyFeedbackByUser = {
-    //     feedbackId : FeedbackId;
-    //     postId: Nat;
-    //     created : Int;
-    //     feedback: Text;
-
-    // };
-
     public type UserFeedbacksResult = Result<[Feedback], Error>;
 
     public type BrandPostsResult = Result<[QueryPost],Error>;
 
     public type APostAndFeedbacksResult = Result<PostAndFeedbacks, PostAndFeedbacksError>;
-    type PostAndFeedbacksError = Error or { #NotABrandOwner; #PostBelongsTo : (PostId, Text)};
+   
+    public type PostAndFeedbacksError = Error or { #NotABrandOwner; #PostBelongsTo : (PostId, Text)};
 
     public type AllPostAndFeedbacksResult = Result<[PostAndFeedbacks], PostAndFeedbacksError>;
 
     public type AllUnfilledPostsResult = Result<[QueryPost], Error>;
 
     public type AllOpenPostsResult = Result<[QueryPost], Error> ;
+    
     public type AllClosedPostsResult = Result<[QueryPost], Error>;
     
-
     public type AFeedbackAndPostResult = Result<FeedbackAndPost, Error or {#FeedbackNotInYourList}>;
 
     public type AllFeedbackAndPostResult = Result<[FeedbackAndPost], Error>;
 
-    
-
-    // // Queries
+    // Queries
     public type QueryPost = {
         postId : Nat;
         created : Int;
@@ -160,6 +131,7 @@ module {
         filledspot : Nat;
         spotLeft : Nat;
     };
+
     public type QueryBrand = {
         id : Nat;
         owner : Principal;
@@ -168,6 +140,7 @@ module {
         lastPost : Int;
         totalPosts : Nat;
     };
+
     public type QueryUser = {
         id : Nat;
         principal: Principal;
@@ -181,6 +154,7 @@ module {
         post : QueryPost;
         feedbacks : [Feedback];
     };
+  
     public type  FeedbackAndPost = {
         post : QueryPost;
         feedback : Feedback;

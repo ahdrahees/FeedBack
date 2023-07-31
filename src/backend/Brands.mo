@@ -10,33 +10,22 @@ import T "Types";
 import Constants "Constants";
 import U "Utils";
 
-    type PostResult = Types.PostResult;
-    type QueryBrand = Types.QueryBrand;
-    type QueryOwner = Types.QueryOwner ;
-
 module {
     // Types 
     type List<T> = List.List<T>;
     type BrandMap = T.BrandMap;
-    type Brand = T.Brand;
-    type RegisterResult = T.RegisterResult;
     type PostMap = T.PostMap;
-    type Feedback = T.Feedback;
     type FeedbackMap = T.FeedbackMap;
-    type FeedbackId = T.FeedbackId;
     type PostId = T.PostId;
-    type QueryPost = T.QueryPost;
     type QueryPostResult = T.QueryPostResult;
     type QueryBrand = T.QueryBrand;
     type QueryBrandResult = T.QueryBrandResult;
-    type PostAndFeedbacks = T.PostAndFeedbacks;
 
     // Variables
     let {phash; nhash} = Map;
-    
-    
+        
     // 10 token for a feedback
-    public  func getPost(postMap : PostMap, postId : PostId) : QueryPostResult {
+    public func getPost(postMap : PostMap, postId : PostId) : QueryPostResult {
         switch( Map.get(postMap, nhash, postId)) {
             case (null) { #err(#PostNotFound)};
             case (?post) {    
@@ -44,17 +33,6 @@ module {
             }
         }
     };
-
-    public type ddBrand = {
-        id : Nat;
-        owner : Principal;
-        brand : Text;
-        var balance : Nat;
-        var lastPost : Int;
-        var postList : List.List<PostId>;
-    };
-    
-
 
     public func queryBrand(brandMap : BrandMap, caller : Principal) : QueryBrandResult {
         switch ( Map.get(brandMap, phash, caller)) {
@@ -74,7 +52,7 @@ module {
         }
     };
     
-// brand is not a post owner (postId, principal)
+    // brand is not a post owner (postId, principal)
     public func getAPostAndFeedbacks(brandMap : BrandMap, postMap: PostMap, feedbackMap : FeedbackMap, caller : Principal, postId : PostId) : T.APostAndFeedbacksResult {
         switch ( Map.get(brandMap, phash, caller)) {
             case (null)  { #err(#BrandNotFound)};
@@ -109,32 +87,7 @@ module {
                 #ok( U.postIdListToQueryPostArray(brand.postList, postMap))
             }
         };
-    }
-    public func postBrand(state : State, owner : Principal, brand : Text) : PostResult {
-        if (not validateBrand(brand)) return #err(#InvalidBrand);
-
-        switch (state.owners.get(owner)) {
-
-            case (null) { return #err(#OwnerNotFound) };
-
-            case (?postowner) {
-                let now =   Time.now();
-
-                // Check if owner has posted recently
-                if (now - postowner.lastPost < Constants.POST_INTERVAL) {
-                    return #err(#TimeRemaining(Constants.POST_INTERVAL - (now - postowner.lastPost)));
-                };
-
-                let postBrand : Brand = {
-                    created = now;
-                    owner;
-                    brand;
-                    reward = 0;
-                };
-
-                let hash = hashBrand(postBrand);
-
-                let balance = 100;
+    };
 
     public func getAllOpenPosts(brandMap : BrandMap, postMap : PostMap, closedPostList : List<PostId>, caller : Principal) : T.AllOpenPostsResult{
         switch ( Map.get(brandMap, phash, caller)) {
