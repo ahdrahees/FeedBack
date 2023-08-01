@@ -54,7 +54,7 @@ actor {
     // brand
     public shared ({caller}) func registerBrand(brandName : Text) : async RegisterResult {
         // Anonymous users cannot register
-        if (Principal.isAnonymous(caller)) throw Error.reject("Anonymous users cannot register");
+        if (Principal.isAnonymous(caller)) return #err(#AnonymousNotAllowed);
         _register(brandMap, caller, brandName);
     };
 
