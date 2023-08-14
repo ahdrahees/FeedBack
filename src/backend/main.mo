@@ -255,7 +255,7 @@ actor {
              };
         };
     };
-
+ // private function
     private func _postFeedback(userMap : UserMap, _principal : Principal, postMap : PostMap, postId :PostId, feedbackMap : FeedbackMap, _feedback : [Text]) : FeedbackResult {
         switch(Map.get(userMap, phash, _principal)) {
             case(null) { #err(#UserNotFound) };
