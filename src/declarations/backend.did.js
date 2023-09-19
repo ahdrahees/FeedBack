@@ -3,7 +3,7 @@ export const idlFactory = ({ IDL }) => {
   const QueryPost = IDL.Record({
     'created' : IDL.Int,
     'filledspot' : IDL.Nat,
-    'question' : IDL.Text,
+    'question' : IDL.Vec(IDL.Text),
     'owner' : IDL.Principal,
     'spotLeft' : IDL.Nat,
     'totalspot' : IDL.Nat,
@@ -15,7 +15,7 @@ export const idlFactory = ({ IDL }) => {
   const Feedback = IDL.Record({
     'userName' : IDL.Text,
     'created' : IDL.Int,
-    'feedback' : IDL.Text,
+    'feedback' : IDL.Vec(IDL.Text),
     'feedbackId' : FeedbackId,
     'postId' : IDL.Nat,
   });
@@ -185,9 +185,13 @@ export const idlFactory = ({ IDL }) => {
     'getAllUnfilledPosts' : IDL.Func([], [AllUnfilledPostsResult], ['query']),
     'getFeedbacksByUser' : IDL.Func([], [UserFeedbacksResult], ['query']),
     'getPost' : IDL.Func([IDL.Nat], [QueryPostResult], ['query']),
-    'getPostsbyBrand' : IDL.Func([], [BrandPostsResult], ['query']),
-    'post' : IDL.Func([IDL.Text, IDL.Nat], [PostResult], []),
-    'postfeedback' : IDL.Func([IDL.Nat, IDL.Text], [FeedbackResult], []),
+    'getPostsByBrand' : IDL.Func([], [BrandPostsResult], ['query']),
+    'post' : IDL.Func([IDL.Vec(IDL.Text), IDL.Nat], [PostResult], []),
+    'postfeedback' : IDL.Func(
+        [IDL.Nat, IDL.Vec(IDL.Text)],
+        [FeedbackResult],
+        [],
+      ),
     'queryBrand' : IDL.Func([], [QueryBrandResult], ['query']),
     'queryUser' : IDL.Func([], [QueryUserResult], ['query']),
     'register' : IDL.Func([Registration], [RegisterResult], []),

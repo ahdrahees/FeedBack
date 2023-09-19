@@ -52,7 +52,7 @@ type QueryPost =
    filledspot: nat;
    owner: principal;
    postId: nat;
-   question: text;
+   question: vec text;
    rewardLeft: nat;
    spotLeft: nat;
    totalspot: nat;
@@ -142,7 +142,7 @@ type FeedbackAndPost =
 type Feedback = 
  record {
    created: int;
-   feedback: text;
+   feedback: vec text;
    feedbackId: FeedbackId;
    postId: nat;
    userName: text;
@@ -215,9 +215,9 @@ service : {
   getAllUnfilledPosts: () -> (AllUnfilledPostsResult) query;
   getFeedbacksByUser: () -> (UserFeedbacksResult) query;
   getPost: (nat) -> (QueryPostResult) query;
-  getPostsbyBrand: () -> (BrandPostsResult) query;
-  post: (text, nat) -> (PostResult);
-  postfeedback: (nat, text) -> (FeedbackResult);
+  getPostsByBrand: () -> (BrandPostsResult) query;
+  post: (vec text, nat) -> (PostResult);
+  postfeedback: (nat, vec text) -> (FeedbackResult);
   queryBrand: () -> (QueryBrandResult) query;
   queryUser: () -> (QueryUserResult) query;
   register: (Registration) -> (RegisterResult);

@@ -34,7 +34,7 @@ export type Error = { 'AnonymousNotAllowed' : null } |
 export interface Feedback {
   'userName' : string,
   'created' : bigint,
-  'feedback' : string,
+  'feedback' : Array<string>,
   'feedbackId' : FeedbackId,
   'postId' : bigint,
 }
@@ -93,7 +93,7 @@ export type QueryBrandResult = { 'ok' : QueryBrand } |
 export interface QueryPost {
   'created' : bigint,
   'filledspot' : bigint,
-  'question' : string,
+  'question' : Array<string>,
   'owner' : Principal,
   'spotLeft' : bigint,
   'totalspot' : bigint,
@@ -136,9 +136,9 @@ export interface _SERVICE {
   'getAllUnfilledPosts' : ActorMethod<[], AllUnfilledPostsResult>,
   'getFeedbacksByUser' : ActorMethod<[], UserFeedbacksResult>,
   'getPost' : ActorMethod<[bigint], QueryPostResult>,
-  'getPostsbyBrand' : ActorMethod<[], BrandPostsResult>,
-  'post' : ActorMethod<[string, bigint], PostResult>,
-  'postfeedback' : ActorMethod<[bigint, string], FeedbackResult>,
+  'getPostsByBrand' : ActorMethod<[], BrandPostsResult>,
+  'post' : ActorMethod<[Array<string>, bigint], PostResult>,
+  'postfeedback' : ActorMethod<[bigint, Array<string>], FeedbackResult>,
   'queryBrand' : ActorMethod<[], QueryBrandResult>,
   'queryUser' : ActorMethod<[], QueryUserResult>,
   'register' : ActorMethod<[Registration], RegisterResult>,
